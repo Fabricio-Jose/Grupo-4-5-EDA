@@ -1,10 +1,6 @@
-interface Color {
-  r: number;
-  g: number;
-  b: number;
-  a: number;
-}
-export const loadImg = (e: Event) => {
+import { QuantizerOctree, Color } from './colored-octree';
+
+export const loadImg = (e: Event, octree: QuantizerOctree) => {
   // let img = document.getElementById('output') as HTMLImageElement;
   let target = e.target as HTMLInputElement;
   let files = target.files as FileList;
@@ -50,13 +46,14 @@ export const loadImg = (e: Event) => {
           width: canvas.width,
           height: canvas.height,
         });
-        imgLooper(canvas);
+        // QOctree
+        imgLooper(canvas, octree);
       };
     };
   }
 };
 
-const imgLooper = (canvas: HTMLCanvasElement) => {
+const imgLooper = (canvas: HTMLCanvasElement, octree: QuantizerOctree) => {
   const context = canvas.getContext('2d') as CanvasRenderingContext2D;
   const imgData = context.getImageData(0, 0, canvas.width, canvas.height);
   const data = imgData.data;
@@ -66,30 +63,30 @@ const imgLooper = (canvas: HTMLCanvasElement) => {
       r: data[i],
       g: data[i + 1],
       b: data[i + 2],
-      a: data[i + 3],
     };
     // 7 levels of colors
-    let levels = getColorLevels(color);
-    console.log(color);
+    octree.addColor(color);
+    // let levels = getColorLevels(color);
+    // console.log(color);
   }
 };
 
-const getColorLevels = (color: Color): number[] => {
-  let arr = new Array<number>(8);
-  for (let i = 0; i < 8; i++) {
-    let index = 0;
-    const mask = 0x80 >> i;
-    if (color.r & mask) {
-      index |= 4;
-    }
-    if (color.g & mask) {
-      index |= 2;
-    }
-    if (color.b & mask) {
-      index |= 1;
-    }
-    arr[i] = index;
-    // Do something with color
-  }
-  return arr;
-};
+// const getColorLevels = (color: Color): number[] => {
+//   let arr = new Array<number>(8);
+//   for (let i = 0; i < 8; i++) {
+//     let index = 0;
+//     const mask = 0x80 >> i;
+//     if (color.r & mask) {
+//       index |= 4;
+//     }
+//     if (color.g & mask) {
+//       index |= 2;
+//     }
+//     if (color.b & mask) {
+//       index |= 1;
+//     }
+//     arr[i] = index;
+//     // Do something with color
+//   }
+//   return arr;
+// };
