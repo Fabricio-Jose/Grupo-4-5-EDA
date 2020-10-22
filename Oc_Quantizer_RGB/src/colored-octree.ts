@@ -14,7 +14,7 @@ export class QuantizerOctree {
     this.root = new QNode(0);
   }
   addColor(color: Color): void {
-    this.root.addColor(color, 0);
+    this.root.addColorPixel(color, 0);
   }
   fill(data: Uint8ClampedArray): void {
     console.log({ dataleng: data.length });
@@ -43,7 +43,7 @@ class QNode {
     this.children = Array<QNode>(8);
     this.pixelCount = 0;
   }
-  addColor(color: Color, level: number): void {
+  addColorPixel(color: Color, level: number): void {
     if (level >= LEVELS) {
       this.colorpixel.addColor(color);
       this.pixelCount++;
@@ -54,7 +54,7 @@ class QNode {
       if (!this.children[index]) {
         this.children[index] = new QNode(level);
       }
-      this.children[index].addColor(color, level + 1);
+      this.children[index].addColorPixel(color, level + 1);
     }
   }
 }
@@ -78,7 +78,7 @@ class ColorPixel {
 
 const getColorIndex = (color: Color, level: number): number => {
   let index = 0;
-  let mask = 128;
+  let mask = 128 >> level;
   if (color.r & mask) index |= 4;
   if (color.g & mask) index |= 2;
   if (color.b & mask) index |= 1;
