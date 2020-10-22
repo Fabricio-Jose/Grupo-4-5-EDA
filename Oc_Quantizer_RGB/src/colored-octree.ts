@@ -45,7 +45,7 @@ class QNode {
   }
   addColorPixel(color: Color, level: number): void {
     if (level >= LEVELS) {
-      this.colorpixel.addColor(color);
+      this.colorpixel.sumColors(color);
       this.pixelCount++;
     } else {
       this.leaf = false;
@@ -64,12 +64,7 @@ class ColorPixel {
   constructor(color: Color) {
     this.color = color;
   }
-  addColorPixel(colorPixel: ColorPixel): void {
-    this.color.r += colorPixel.color.r;
-    this.color.g += colorPixel.color.g;
-    this.color.b += colorPixel.color.b;
-  }
-  addColor(color: Color): void {
+  sumColors(color: Color): void {
     this.color.r += color.r;
     this.color.g += color.g;
     this.color.b += color.b;
