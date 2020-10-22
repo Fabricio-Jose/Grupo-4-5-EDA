@@ -16,6 +16,18 @@ export class QuantizerOctree {
   addColor(color: Color): void {
     this.root.addColor(color, 0);
   }
+  fill(data: Uint8ClampedArray): void {
+    console.log({ dataleng: data.length });
+    for (let i = 0; i < data.length; i += 4) {
+      const color: Color = {
+        r: data[i],
+        g: data[i + 1],
+        b: data[i + 2],
+      };
+      // 7 levels of colors
+      this.addColor(color);
+    }
+  }
 }
 
 class QNode {

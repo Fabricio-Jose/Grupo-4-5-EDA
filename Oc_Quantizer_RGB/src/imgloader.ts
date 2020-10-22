@@ -57,18 +57,19 @@ const imgLooper = (canvas: HTMLCanvasElement, octree: QuantizerOctree) => {
   const context = canvas.getContext('2d') as CanvasRenderingContext2D;
   const imgData = context.getImageData(0, 0, canvas.width, canvas.height);
   const data = imgData.data;
-  console.log({ dataleng: data.length });
-  for (let i = 0; i < data.length; i += 4) {
-    const color: Color = {
-      r: data[i],
-      g: data[i + 1],
-      b: data[i + 2],
-    };
-    // 7 levels of colors
-    octree.addColor(color);
-    // let levels = getColorLevels(color);
-    // console.log(color);
-  }
+  octree.fill(data);
+  // console.log({ dataleng: data.length });
+  // for (let i = 0; i < data.length; i += 4) {
+  //   const color: Color = {
+  //     r: data[i],
+  //     g: data[i + 1],
+  //     b: data[i + 2],
+  //   };
+  //   // 7 levels of colors
+  //   octree.addColor(color);
+  //   // let levels = getColorLevels(color);
+  //   // console.log(color);
+  // }
 };
 
 // const getColorLevels = (color: Color): number[] => {
