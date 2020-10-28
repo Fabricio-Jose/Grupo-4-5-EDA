@@ -66,10 +66,6 @@ export class QuantizerOctree {
     let visited = new Set<QNode>();
     while (queue.length > 0) {
       let qnode = queue.shift()!;
-      // if root
-      // if (qnode.level == this.max_level){
-
-      // }
       for (let qchild of qnode.children) {
         if (qchild) {
           if (qnode.level === this.max_level) {
@@ -79,17 +75,6 @@ export class QuantizerOctree {
               qchild.pixelAccumulator.baseRGB
             );
           }
-          // if (qchild.level === this.max_level) {
-          //   qchild.leaf = true;
-          //   for (let leaf of qchild.children) {
-          //     if (leaf) {
-          //       qchild.pixelCount += leaf.pixelCount;
-          //       qchild.pixelAccumulator.sumRGBValues(
-          //         leaf.pixelAccumulator.baseRGB
-          //       );
-          //     }
-          //   }
-          // }
           if (!visited.has(qchild) && qchild.level <= this.max_level) {
             visited.add(qchild);
             queue.push(qchild);
