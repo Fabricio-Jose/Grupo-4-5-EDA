@@ -1,4 +1,5 @@
 const LEVELS = 8;
+const nil = -1;
 
 export interface RGBPixel {
   r: number;
@@ -6,27 +7,147 @@ export interface RGBPixel {
   b: number;
 }
 
+export interface RGBAPixel {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}
+
 export class QuantizerOctree {
   //   levels: number[];
   private root: QNode;
+  private outputImg: Uint8ClampedArray;
+  private inputImg: Uint8ClampedArray;
+  private imgHeight = -1;
+  private imgWidth = -1;
+  private max_level: number;
   constructor() {
     // this.levels = new Array<number>(LEVELS);
-    this.root = new QNode(0);
+    this.root = new QNode(-1);
+    this.outputImg = new Uint8ClampedArray();
+    this.inputImg = new Uint8ClampedArray();
+    this.max_level = 7;
   }
-  insertPixel(color: RGBPixel): void {
+  private insertPixel(color: RGBPixel): void {
     this.root.insertRGBPixel(color, 0);
   }
-  fill(data: Uint8ClampedArray): void {
-    console.log({ dataleng: data.length });
+
+  private buildOutputImg(): void {
+    this.outputImg = new Uint8ClampedArray(4 * this.imgWidth * this.imgHeight);
+    for (let i = 0; i < this.inputImg.length; i += 4) {
+      let rgbaPixel: RGBAPixel = {
+        r: this.inputImg[i + 0],
+        g: this.inputImg[i + 1],
+        b: this.inputImg[i + 2],
+        a: this.inputImg[i + 3],
+      };
+      let rgbPixel: RGBPixel = {
+        r: this.inputImg[i + 0],
+        g: this.inputImg[i + 1],
+        b: this.inputImg[i + 2],
+      };
+      let qnode = this.getQNode(rgbPixel, this.root, 0);
+      let outputPixel: RGBPixel = {
+        r: qnode.pixelAccumulator.baseRGB.r / qnode.pixelCount,
+        g: qnode.pixelAccumulator.baseRGB.g / qnode.pixelCount,
+        b: qnode.pixelAccumulator.baseRGB.b / qnode.pixelCount,
+      };
+      this.outputImg[i + 0] = outputPixel.r;
+      this.outputImg[i + 1] = outputPixel.g;
+      this.outputImg[i + 2] = outputPixel.b;
+      this.outputImg[i + 3] = rgbaPixel.a;
+    }
+  }
+
+  private BFS_reduce(root: QNode): void {
+    this.max_level--;
+    let queue = [root];
+    let visited = new Set<QNode>();
+    while (queue.length > 0) {
+      let qnode = queue.shift()!;
+      // if root
+      // if (qnode.level == this.max_level){
+
+      // }
+      for (let qchild of qnode.children) {
+        if (qchild) {
+          if (qnode.level === this.max_level) {
+            qnode.leaf = true;
+            qnode.pixelCount += qchild.pixelCount;
+            qnode.pixelAccumulator.sumRGBValues(
+              qchild.pixelAccumulator.baseRGB
+            );
+          }
+          // if (qchild.level === this.max_level) {
+          //   qchild.leaf = true;
+          //   for (let leaf of qchild.children) {
+          //     if (leaf) {
+          //       qchild.pixelCount += leaf.pixelCount;
+          //       qchild.pixelAccumulator.sumRGBValues(
+          //         leaf.pixelAccumulator.baseRGB
+          //       );
+          //     }
+          //   }
+          // }
+          if (!visited.has(qchild) && qchild.level <= this.max_level) {
+            visited.add(qchild);
+            queue.push(qchild);
+          }
+        }
+      }
+    }
+  }
+
+  private reduceLevel(levelsToReduce: number): void {
+    if (levelsToReduce > LEVELS) levelsToReduce = LEVELS;
+    for (let i = 0; i < levelsToReduce; i++) {
+      this.BFS_reduce(this.root);
+    }
+  }
+
+  private getQNode(rgbPixel: RGBPixel, root: QNode, level: number): QNode {
+    while (!root.leaf) {
+      const index = getPixelIndex(rgbPixel, level);
+      root = root.children[index];
+      level++;
+    }
+    return root;
+  }
+
+  fill(data: Uint8ClampedArray, width: number, height: number): void {
+    console.log({
+      newWidth: width,
+      newHeight: height,
+    });
+    console.log({ length: data.length });
+    this.imgWidth = width;
+    this.imgHeight = height;
+    this.inputImg = data;
     for (let i = 0; i < data.length; i += 4) {
-      const rgbPixel: RGBPixel = {
-        r: data[i],
+      let rgbPixel: RGBPixel = {
+        r: data[i + 0],
         g: data[i + 1],
         b: data[i + 2],
       };
-      // 7 levels of colors
       this.insertPixel(rgbPixel);
     }
+  }
+
+  reduceAndShow(canvasId: string, levelsToReduce: number): void {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    canvas.width = this.imgWidth;
+    canvas.height = this.imgHeight;
+    const ctx = canvas.getContext("2d")!;
+    this.reduceLevel(levelsToReduce);
+    this.buildOutputImg();
+    let imageData = new ImageData(
+      this.outputImg,
+      this.imgWidth,
+      this.imgHeight
+    );
+    // Draw image data to the canvas
+    ctx.putImageData(imageData, 0, 0);
   }
 }
 
@@ -60,14 +181,14 @@ class QNode {
 }
 
 class RGBPixelAccumulator {
-  baseRGBPixel: RGBPixel;
+  baseRGB: RGBPixel;
   constructor(rgbPixel: RGBPixel) {
-    this.baseRGBPixel = rgbPixel;
+    this.baseRGB = rgbPixel;
   }
   sumRGBValues(rgbPixel: RGBPixel): void {
-    this.baseRGBPixel.r += rgbPixel.r;
-    this.baseRGBPixel.g += rgbPixel.g;
-    this.baseRGBPixel.b += rgbPixel.b;
+    this.baseRGB.r += rgbPixel.r;
+    this.baseRGB.g += rgbPixel.g;
+    this.baseRGB.b += rgbPixel.b;
   }
 }
 

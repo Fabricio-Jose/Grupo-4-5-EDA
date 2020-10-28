@@ -1,9 +1,10 @@
-import { QuantizerOctree } from './colored-octree';
-import { loadImg } from './imgloader';
+import { QuantizerOctree } from "./colored-octree";
+import { loadImg } from "./imgloader";
 
-let octree = new QuantizerOctree();
-console.log(octree);
-let imgInput = document.getElementById('imageInput') as HTMLInputElement;
-imgInput.addEventListener('change', (e: Event) => {
+let imgInput = document.getElementById("imageInput") as HTMLInputElement;
+let octree: QuantizerOctree;
+imgInput.addEventListener("change", (e: Event) => {
+  octree = new QuantizerOctree();
+  console.log(octree);
   loadImg(e, octree);
 });
