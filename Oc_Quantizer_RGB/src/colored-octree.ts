@@ -1,3 +1,5 @@
+import { resize } from './imgloader';
+
 const LEVELS = 8;
 const nil = -1;
 
@@ -15,18 +17,19 @@ export interface RGBAPixel {
 }
 
 export class QuantizerOctree {
-  //   levels: number[];
   private root: QNode;
   private outputImg: Uint8ClampedArray;
   private inputImg: Uint8ClampedArray;
+  private inPalette: Uint8ClampedArray;
+  private inPaletteWidth: number;
+  private outPalette: Uint8ClampedArray;
+  private outPaletteWidth: number;
   private imgHeight = -1;
   private imgWidth = -1;
   private max_level: number;
+  private leaves: QNode[];
   constructor() {
-    // this.levels = new Array<number>(LEVELS);
     this.root = new QNode(-1);
-    this.outputImg = new Uint8ClampedArray();
-    this.inputImg = new Uint8ClampedArray();
     this.max_level = 7;
   }
   private insertPixel(color: RGBPixel): void {
@@ -60,12 +63,69 @@ export class QuantizerOctree {
     }
   }
 
+  private getLeafNodesAfterReduction() {
+    return this.leaves;
+  }
+
+  private BFSGetLeafNodes(): QNode[] {
+    let queue = [this.root];
+    this.leaves = [];
+    while (queue.length > 0) {
+      let qnode = queue.shift();
+      if (qnode.leaf) {
+        this.leaves.push(qnode);
+      }
+      for (let qchild of qnode.children) {
+        //not null
+        if (qchild && qchild.level <= this.max_level) {
+          queue.push(qchild);
+        }
+      }
+    }
+    return this.leaves;
+  }
+
+  buildPalette(paletteName: string) {
+    let leaves: QNode[];
+    if (paletteName === 'outPalette') {
+      leaves = this.getLeafNodesAfterReduction();
+    } else {
+      leaves = this.BFSGetLeafNodes();
+    }
+    let palette = new Uint8ClampedArray(
+      4 *
+        Math.floor(Math.sqrt(leaves.length)) *
+        Math.floor(Math.sqrt(leaves.length))
+    );
+    for (let i = 0; i < palette.length; i += 4) {
+      let rgbPalette: RGBAPixel = {
+        r: leaves[i / 4].pixelAccumulator.baseRGB.r / leaves[i / 4].pixelCount,
+        g: leaves[i / 4].pixelAccumulator.baseRGB.g / leaves[i / 4].pixelCount,
+        b: leaves[i / 4].pixelAccumulator.baseRGB.b / leaves[i / 4].pixelCount,
+        a: 255,
+      };
+      palette[i + 0] = rgbPalette.r;
+      palette[i + 1] = rgbPalette.g;
+      palette[i + 2] = rgbPalette.b;
+      palette[i + 3] = rgbPalette.a;
+    }
+    if (paletteName === 'inPalette') {
+      this.inPalette = palette;
+      this.inPaletteWidth = Math.floor(Math.sqrt(leaves.length));
+    }
+    if (paletteName === 'outPalette') {
+      this.outPalette = palette;
+      this.outPaletteWidth = Math.floor(Math.sqrt(leaves.length));
+    }
+  }
+
   private BFS_reduce(root: QNode): void {
     this.max_level--;
     let queue = [root];
     let visited = new Set<QNode>();
+    this.leaves = [];
     while (queue.length > 0) {
-      let qnode = queue.shift()!;
+      let qnode = queue.shift();
       for (let qchild of qnode.children) {
         if (qchild) {
           if (qnode.level === this.max_level) {
@@ -74,6 +134,7 @@ export class QuantizerOctree {
             qnode.pixelAccumulator.sumRGBValues(
               qchild.pixelAccumulator.baseRGB
             );
+            this.leaves.push(qchild);
           }
           if (!visited.has(qchild) && qchild.level <= this.max_level) {
             visited.add(qchild);
@@ -89,6 +150,8 @@ export class QuantizerOctree {
     for (let i = 0; i < levelsToReduce; i++) {
       this.BFS_reduce(this.root);
     }
+    //Build Palette when tree reduction is finished
+    this.buildPalette('outPalette');
   }
 
   private getQNode(rgbPixel: RGBPixel, root: QNode, level: number): QNode {
@@ -117,13 +180,15 @@ export class QuantizerOctree {
       };
       this.insertPixel(rgbPixel);
     }
+    //Build Palette when tree build is finished
+    this.buildPalette('inPalette');
   }
 
   reduceAndShow(canvasId: string, levelsToReduce: number): void {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     canvas.width = this.imgWidth;
     canvas.height = this.imgHeight;
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext('2d')!;
     this.reduceLevel(levelsToReduce);
     this.buildOutputImg();
     let imageData = new ImageData(
@@ -132,6 +197,25 @@ export class QuantizerOctree {
       this.imgHeight
     );
     // Draw image data to the canvas
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  showOutputPalette(canvasId: string) {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    canvas.width = this.outPaletteWidth;
+    canvas.height = this.outPaletteWidth;
+    const ctx = canvas.getContext('2d');
+    let imageData = new ImageData(this.outPalette, this.outPaletteWidth);
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  showInputPalette(canvasId: string) {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    canvas.width = this.inPaletteWidth;
+    canvas.height = this.inPaletteWidth;
+    const ctx = canvas.getContext('2d');
+    // resize(canvas, ctx, )
+    let imageData = new ImageData(this.inPalette, this.inPaletteWidth);
     ctx.putImageData(imageData, 0, 0);
   }
 }

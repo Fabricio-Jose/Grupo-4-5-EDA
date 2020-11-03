@@ -1,4 +1,4 @@
-import { QuantizerOctree } from "./colored-octree";
+import { QuantizerOctree } from './colored-octree';
 
 export const loadImg = (e: Event, octree: QuantizerOctree) => {
   let target = e.target as HTMLInputElement;
@@ -12,8 +12,8 @@ export const loadImg = (e: Event, octree: QuantizerOctree) => {
       let img = new Image();
       img.src = reader.result as string;
       img.onload = (ev: Event) => {
-        let canvas = document.getElementById("input-img") as HTMLCanvasElement;
-        let context = canvas.getContext("2d") as CanvasRenderingContext2D;
+        let canvas = document.getElementById('input-img') as HTMLCanvasElement;
+        let context = canvas.getContext('2d') as CanvasRenderingContext2D;
 
         // original image size
         // canvas.width = img.width;
@@ -36,14 +36,14 @@ export const loadImg = (e: Event, octree: QuantizerOctree) => {
   }
 };
 
-const resize = (
+export const resize = (
   canvas: HTMLCanvasElement,
   context: CanvasRenderingContext2D,
   img: HTMLImageElement
 ) => {
   canvas.height = canvas.width * (img.height / img.width);
-  let oc = document.createElement("canvas");
-  let ocontext = oc.getContext("2d") as CanvasRenderingContext2D;
+  let oc = document.createElement('canvas');
+  let ocontext = oc.getContext('2d') as CanvasRenderingContext2D;
   oc.width = img.width * 0.5;
   oc.height = img.height * 0.5;
   ocontext.drawImage(img, 0, 0, oc.width, oc.height);
@@ -62,7 +62,7 @@ const resize = (
 };
 
 const fillWithImg = (canvas: HTMLCanvasElement, octree: QuantizerOctree) => {
-  const context = canvas.getContext("2d") as CanvasRenderingContext2D;
+  const context = canvas.getContext('2d') as CanvasRenderingContext2D;
   const imgData = context.getImageData(0, 0, canvas.width, canvas.height);
   const data = imgData.data;
   octree.fill(data, canvas.width, canvas.height);
@@ -70,9 +70,11 @@ const fillWithImg = (canvas: HTMLCanvasElement, octree: QuantizerOctree) => {
 
 const showResult = (octree: QuantizerOctree) => {
   const element = document.getElementById(
-    "levels-to-reduce"
+    'levels-to-reduce'
   ) as HTMLSelectElement;
   const options = element.options[element.selectedIndex];
   const value = parseInt(options.value);
-  octree.reduceAndShow("output-img", value);
+  octree.reduceAndShow('output-img', value);
+  octree.showInputPalette('input-palette');
+  octree.showOutputPalette('output-palette');
 };
