@@ -134,13 +134,15 @@ export class QuantizerOctree {
             qnode.pixelAccumulator.sumRGBValues(
               qchild.pixelAccumulator.baseRGB
             );
-            this.leaves.push(qchild);
           }
           if (!visited.has(qchild) && qchild.level <= this.max_level) {
             visited.add(qchild);
             queue.push(qchild);
           }
         }
+      }
+      if (qnode.leaf) {
+        this.leaves.push(qnode);
       }
     }
   }
