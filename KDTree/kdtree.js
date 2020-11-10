@@ -46,22 +46,6 @@ function build_kdtree(points, depth = 0) {
   return node;
 }
 
-const closestPoints = (data, query, k) => {
-  let distances = new Array(query.length);
-  let results = new Array(query.length);
-  for (let i = 0; i < query.length; i++) {
-    distances[i] = [];
-    for (let j = 0; j < data.length; j++) {
-      distances[i].push({ dist: $distance(query[i], data[j]), point: data[j] });
-    }
-    distances[i].sort((a, b) =>
-      a.dist > b.dist ? 1 : b.dist > a.dist ? -1 : 0
-    );
-    results[i] = distances[i].slice(0, k);
-  }
-  return results;
-};
-
 const closest_point_brute_force = (points, point) => {
   let pair = [Infinity, null];
   for (let i = 0; i < points.length; i++) {
@@ -79,9 +63,28 @@ const naive_closest_point = (node, point, depth = 0, best = null) => {
   let axis = depth % k;
   if (node.point[axis] > point[axis])
     return naive_closest_point(node.left, point, depth + 1, best);
-  if (node.point[axis] <= point[axis])
+  else if (node.point[axis] < point[axis])
     return naive_closest_point(node.right, point, depth + 1, best);
+  else if (JSON.stringify(node.point) === JSON.stringify(point)) return best;
 };
+
+// const closest_point = (node, point, depth = 0, best = null) => {
+//   if (!node) return best;
+//   if (!best) best = [Infinity, null];
+//   let dist_node = $distance(node.point, point);
+//   let left_dist = Infinity;
+//   let right_dist = Infinity;
+//   if (node.left) left_dist = $distance(node.left.point, point);
+//   if (node.right) right_dist = $distance(node.right.point, point);
+//   let smallerPoint = left_dist < right_dist ? node.left : node.right;
+
+//   if (best[0] > dist_node) best = [dist_node, node.point];
+//   let axis = depth % k;
+//   if (node.point[axis] > point[axis])
+//     return naive_closest_point(node.left, point, depth + 1, best);
+//   else if (node.point[axis] <= point[axis])
+//     return naive_closest_point(node.right, point, depth + 1, best);
+// };
 
 const $distance = (a, p) => {
   //euclidean distance
@@ -93,23 +96,34 @@ const $distance = (a, p) => {
   return Math.sqrt(dist);
 };
 
+const knn_no_labels = (data, query, k) => {
+  let distances = new Array(query.length);
+  distances = [];
+  for (let i = 0; i < data.length; i++) {
+    distances.push({ dist: $distance(query, data[i]), point: data[i] });
+  }
+  distances.sort((a, b) => (a.dist > b.dist ? 1 : b.dist > a.dist ? -1 : 0));
+  return distances.slice(0, k);
+};
+
 const data = [
+  [0, 0],
   [1, 1],
   [2, 2],
-  [3, 1],
-  [4, 2],
-  [5, 3],
-  [2, 4],
-  [3, 4],
-  [4, 4],
+  [2.1, 1.5],
+  [3, 2],
+  [0, 1],
+  [4, 1],
+  [2.5, 1],
+  [1.1, 3],
+  [4, 0],
+  [1, 4],
 ];
 
-const query = [[4, 5]];
-
-console.log(closestPoints(data, query, 3)[0]);
-
-// console.log(closest_point_brute_force(data, query[0]));
+const query = [[1.9, 1.5]];
 
 let testTree = build_kdtree(data);
 
 console.log(naive_closest_point(testTree, query[0]));
+
+console.log(knn_no_labels(data, query[0], 4));

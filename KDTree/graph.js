@@ -11,11 +11,6 @@ myDiagram.nodeTemplate = $(
   'Horizontal',
   { background: '#252525FF' },
   $(
-    go.Picture,
-    { margin: 10, width: 25, height: 25, background: 'red' },
-    new go.Binding('source')
-  ),
-  $(
     go.TextBlock,
     'Default Text',
     { margin: 12, stroke: 'white', font: 'bold 16px sans-serif' },

@@ -30,5 +30,5 @@ function setup() {
   console.log('Altura del Arbol es ' + getHeight(root));
   console.log(generate_dot(root));
   // graph
-  model.nodeDataArray = gg(root);
+  model.nodeDataArray = gg(testTree);
 }
