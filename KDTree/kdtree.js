@@ -61,30 +61,38 @@ const naive_closest_point = (node, point, depth = 0, best = null) => {
   let dist_node = $distance(node.point, point);
   if (best[0] > dist_node) best = [dist_node, node.point];
   let axis = depth % k;
-  if (node.point[axis] > point[axis])
+  if (JSON.stringify(node.point) === JSON.stringify(point)) return best;
+  else if (node.point[axis] > point[axis])
     return naive_closest_point(node.left, point, depth + 1, best);
   else if (node.point[axis] < point[axis])
     return naive_closest_point(node.right, point, depth + 1, best);
-  else if (JSON.stringify(node.point) === JSON.stringify(point)) return best;
 };
 
-// const closest_point = (node, point, depth = 0, best = null) => {
-//   if (!node) return best;
-//   if (!best) best = [Infinity, null];
-//   let dist_node = $distance(node.point, point);
-//   let left_dist = Infinity;
-//   let right_dist = Infinity;
-//   if (node.left) left_dist = $distance(node.left.point, point);
-//   if (node.right) right_dist = $distance(node.right.point, point);
-//   let smallerPoint = left_dist < right_dist ? node.left : node.right;
+const closest_point = (node, point, depth = 0, best = null) => {
+  if (!node) return best;
+  if (!best) best = [Infinity, null];
+  let dist_node = $distance(node.point, point);
 
-//   if (best[0] > dist_node) best = [dist_node, node.point];
-//   let axis = depth % k;
-//   if (node.point[axis] > point[axis])
-//     return naive_closest_point(node.left, point, depth + 1, best);
-//   else if (node.point[axis] <= point[axis])
-//     return naive_closest_point(node.right, point, depth + 1, best);
-// };
+  if (best[0] > dist_node) best = [dist_node, node.point];
+  let axis = depth % k;
+  if (node.point[axis] > point[axis]) {
+    let closest_pair = closest_point(node.left, point, depth + 1, best);
+    console.log({ Lpair: closest_pair });
+    console.log({ Ldist: dist_node });
+    return closest_pair[0] > dist_node
+      ? closest_point(node.right, point, depth + 1, best)
+      : closest_pair;
+  } else if (node.point[axis] < point[axis]) {
+    let closest_pair = closest_point(node.right, point, depth + 1, best);
+    console.log({ Rpair: closest_pair });
+    console.log({ Rdist: dist_node });
+    return closest_pair[0] > dist_node
+      ? closest_point(node.left, point, depth + 1, best)
+      : closest_pair;
+  } else if (JSON.stringify(node.point) === JSON.stringify(point)) {
+    return [point, 0];
+  }
+};
 
 const $distance = (a, p) => {
   //euclidean distance
@@ -105,7 +113,7 @@ const knn_no_labels = (data, query, k) => {
   return distances.slice(0, k);
 };
 
-const data = [
+const data2 = [
   [0, 0],
   [1, 1],
   [2, 2],
@@ -119,10 +127,12 @@ const data = [
   [1, 4],
 ];
 
-const query = [[1.9, 1.5]];
+const q = [[1.9, 1.5]];
 
-let testTree = build_kdtree(data);
+let testTree = build_kdtree(data2);
 
-console.log(naive_closest_point(testTree, query[0]));
+// console.log(naive_closest_point(testTree, query[0]));
 
-console.log(knn_no_labels(data, query[0], 4));
+// console.log(knn_no_labels(data2, query[0], 4));
+// closest_point(testTree, query[0]);
+// console.log(closest_point(testTree, query[0]));
