@@ -35,9 +35,7 @@ function build_kdtree(points, depth = 0) {
   if (points.length == 0) return;
 
   var axis = depth % k;
-  points.sort(function (a, b) {
-    return a[axis] > b[axis];
-  });
+  points.sort((a, b) => (a[axis] > b[axis] ? 1 : b[axis] > a[axis] ? -1 : 0));
 
   var median = Math.floor(points.length / 2);
 
@@ -47,3 +45,44 @@ function build_kdtree(points, depth = 0) {
 
   return node;
 }
+
+const closestPoints = (data, query, k) => {
+  let distances = new Array(query.length);
+  let results = new Array(query.length);
+  for (let i = 0; i < query.length; i++) {
+    distances[i] = [];
+    for (let j = 0; j < data.length; j++) {
+      distances[i].push({ dist: $distance(query[i], data[j]), point: data[j] });
+    }
+    distances[i].sort((a, b) =>
+      a.dist > b.dist ? 1 : b.dist > a.dist ? -1 : 0
+    );
+    results[i] = distances[i].slice(0, k);
+  }
+  return results;
+};
+
+const $distance = (a, p) => {
+  //euclidean distance
+  if (a.length != p.length) return null;
+  let dist = 0;
+  for (let i = 0; i < a.length; i++) {
+    dist += (a[i] - p[i]) ** 2;
+  }
+  return Math.sqrt(dist);
+};
+
+const data = [
+  [1, 1],
+  [2, 2],
+  [3, 1],
+  [4, 2],
+  [5, 3],
+  [2, 4],
+  [3, 4],
+  [4, 4],
+];
+
+const query = [[4, 5]];
+
+console.log(closestPoints2(data, query, 3)[0]);

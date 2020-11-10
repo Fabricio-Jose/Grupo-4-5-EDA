@@ -26,9 +26,9 @@ function setup() {
   }
   root = build_kdtree(data);
   console.log(root);
-  // console.log(gg(root));
-  model.nodeDataArray = gg(root);
   myDiagram.model = model;
   console.log('Altura del Arbol es ' + getHeight(root));
   console.log(generate_dot(root));
+  // graph
+  model.nodeDataArray = gg(root);
 }
