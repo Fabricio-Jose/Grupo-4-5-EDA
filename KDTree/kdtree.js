@@ -62,6 +62,27 @@ const closestPoints = (data, query, k) => {
   return results;
 };
 
+const closest_point_brute_force = (points, point) => {
+  let pair = [Infinity, null];
+  for (let i = 0; i < points.length; i++) {
+    let currDist = $distance(points[i], point);
+    pair = pair[0] > currDist ? [currDist, points[i]] : pair;
+  }
+  return pair;
+};
+
+const naive_closest_point = (node, point, depth = 0, best = null) => {
+  if (!node) return best;
+  if (!best) best = [Infinity, null];
+  let dist_node = $distance(node.point, point);
+  if (best[0] > dist_node) best = [dist_node, node.point];
+  let axis = depth % k;
+  if (node.point[axis] > point[axis])
+    return naive_closest_point(node.left, point, depth + 1, best);
+  if (node.point[axis] <= point[axis])
+    return naive_closest_point(node.right, point, depth + 1, best);
+};
+
 const $distance = (a, p) => {
   //euclidean distance
   if (a.length != p.length) return null;
@@ -85,4 +106,10 @@ const data = [
 
 const query = [[4, 5]];
 
-console.log(closestPoints2(data, query, 3)[0]);
+console.log(closestPoints(data, query, 3)[0]);
+
+// console.log(closest_point_brute_force(data, query[0]));
+
+let testTree = build_kdtree(data);
+
+console.log(naive_closest_point(testTree, query[0]));
