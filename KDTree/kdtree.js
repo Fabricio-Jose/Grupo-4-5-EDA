@@ -97,8 +97,7 @@ const $distance = (a, p) => {
 };
 
 const knn_no_labels = (data, query, k) => {
-  let distances = new Array(query.length);
-  distances = [];
+  let distances = [];
   for (let i = 0; i < data.length; i++) {
     distances.push({ dist: $distance(query, data[i]), point: data[i] });
   }
