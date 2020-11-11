@@ -25,7 +25,7 @@ function setup() {
   }
   stroke(0, 255, 0);
   noFill();
-  circle(100, 100, 100);
+  circle(100, height - 100, 100);
   strokeWeight(1);
   var queue = [];
 
