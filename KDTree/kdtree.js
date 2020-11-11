@@ -114,11 +114,9 @@ const knn_no_labels = (data, query, k) => {
 };
 
 function range_query_circle(node, center, radio, queue, depth = 0) {
-  var count = 0;
   if (node == null) return;
   var axis = depth % k;
   var next_branch = null;
-  count++;
 
   if ($distance(node.point, center) <= radio) {
     queue.push([$distance(node.point, center), node.point[0], node.point[1]]);
@@ -139,7 +137,57 @@ function range_query_circle(node, center, radio, queue, depth = 0) {
   return queue;
 }
 
-function range_query_rec(node, center, width, height, queue, depth = 0) {}
+function range_query_rec(node, range, list = [], depth = 0) {
+  if (!node) return;
+  let axis = depth % k;
+  let next_branch = null;
+  if (contains2d(node.point, range)) {
+    list.push(node.point);
+  }
+  let opposite_branch = null;
+  if (range.center[axis] < node.point[axis]) {
+    next_branch = node.left;
+    opposite_branch = node.right;
+  } else {
+    next_branch = node.right;
+    opposite_branch = node.left;
+  }
+  range_query_rec(next_branch, range, list, depth + 1);
+  if (
+    range.w + range.center[0] >=
+      Math.abs(range.center[axis] - node.point[axis]) ||
+    range.h + range.center[1] >=
+      Math.abs(range.center[axis] - node.point[axis]) ||
+    Math.sqrt(
+      (range.center[1] + range.h) ** 2 + (range.center[0] + range.w) ** 2
+    ) >= Math.abs(range.center[axis] - node.point[axis])
+  )
+    range_query_rec(opposite_branch, range, list, depth + 1);
+  // if (contains2d(node.point, range)) {
+  //   list.push(node.point);
+  // }
+  // if (node.left && contains2d(node.left.point, range)) {
+  //   range_query_rec(node.left, range, list, depth + 1);
+  // }
+  // if (node.right && contains2d(node.right.point, range)) {
+  //   range_query_rec(node.right, range, list, depth + 1);
+  // }
+}
+
+const contains2d = (point, range) => {
+  let px = point[0];
+  let py = point[1];
+  let { center, w, h } = range;
+  if (
+    px <= center[0] + w &&
+    px >= center[0] - w &&
+    py <= center[1] + h &&
+    py >= center[1] - h
+  ) {
+    return true;
+  }
+  return false;
+};
 
 const data2 = [
   [0, 0],
@@ -158,6 +206,17 @@ const data2 = [
 const q = [[1.9, 1.5]];
 
 let testTree = build_kdtree(data2);
+
+let range = {
+  center: [2, 2],
+  w: 1,
+  h: 2,
+};
+
+// let list = [];
+// range_query_rec(testTree, range, list);
+
+// console.log({ rec: list });
 
 // console.log(naive_closest_point(testTree, query[0]));
 
