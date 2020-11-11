@@ -36,6 +36,12 @@ function setup() {
   // console.log(generate_dot(root));
   // graph
   console.log('circle');
-  console.log(range_query_circle(root, [100, 100], 50, queue, (depth = 0)));
+  const points = range_query_circle(root, [100, 100], 50, queue, (depth = 0));
+  console.log(points);
+  for (let i in points) {
+    strokeWeight(7);
+    let [dist, x, y] = points[i];
+    point(x, height - y);
+  }
   model.nodeDataArray = gg(root);
 }
