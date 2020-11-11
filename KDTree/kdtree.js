@@ -163,15 +163,6 @@ function range_query_rec(node, range, list = [], depth = 0) {
     ) >= Math.abs(range.center[axis] - node.point[axis])
   )
     range_query_rec(opposite_branch, range, list, depth + 1);
-  // if (contains2d(node.point, range)) {
-  //   list.push(node.point);
-  // }
-  // if (node.left && contains2d(node.left.point, range)) {
-  //   range_query_rec(node.left, range, list, depth + 1);
-  // }
-  // if (node.right && contains2d(node.right.point, range)) {
-  //   range_query_rec(node.right, range, list, depth + 1);
-  // }
 }
 
 const contains2d = (point, range) => {
