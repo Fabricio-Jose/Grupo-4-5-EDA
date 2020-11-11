@@ -24,12 +24,23 @@ function setup() {
     textSize(11);
     text(x + ',' + y, x + 5, height - y); //200-y para q se dibuje apropiadamente
   }
+  stroke(0,255,0);
+  noFill();
+  circle(100,100,100);
+  strokeWeight(1);
+  var queue=[];
+
   root = build_kdtree(data);
   console.log(root);
   myDiagram.model = model;
   console.log('Altura del Arbol es ' + getHeight(root));
   // console.log(generate_dot(root));
   // graph
+<<<<<<< HEAD
+  console.log("circle");
+  console.log(range_query_circle(root, [100,100], 50 , queue, depth=0));
+  model.nodeDataArray = gg(testTree);
+=======
   // model.nodeDataArray = gg(testTree);
   model.nodeDataArray = gg(root);
   strokeWeight(8);
@@ -46,4 +57,5 @@ function setup() {
     textSize(11);
     text(x + ',' + y, x + 5, height - y); //200-y para q se dibuje apropiadamente
   }
+>>>>>>> 8678c5f98f9748c55f43d25e372b4a3c71790286
 }
