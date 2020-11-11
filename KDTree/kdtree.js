@@ -46,8 +46,6 @@ function build_kdtree(points, depth = 0) {
   return node;
 }
 
-
-
 const closest_point_brute_force = (points, point) => {
   let pair = [Infinity, null];
   for (let i = 0; i < points.length; i++) {
@@ -115,43 +113,33 @@ const knn_no_labels = (data, query, k) => {
   return distances.slice(0, k);
 };
 
-<<<<<<< HEAD
+function range_query_circle(node, center, radio, queue, depth = 0) {
+  var count = 0;
+  if (node == null) return;
+  var axis = depth % k;
+  var next_branch = null;
+  count++;
 
+  if ($distance(node.point, center) <= radio) {
+    queue.push([$distance(node.point, center), node.point[0], node.point[1]]);
+  }
+  var opposite_branch = null;
+  if (center[axis] < node.point[axis]) {
+    next_branch = node.left;
+    opposite_branch = node.right;
+  } else {
+    next_branch = node.right;
+    opposite_branch = node.left;
+  }
 
-function range_query_circle(node, center, radio, queue, depth=0){
-	var count = 0; 
-	if(node==null)
-		return;
-	var axis = depth%k;
-	var next_branch=null;
-	count++;
-
-	if($distance(node.point, center)<=radio){
-		queue.push([$distance(node.point,center),node.point[0],node.point[1]]);
-	}
-	var opposite_branch=null;
-	if(center[axis]<node.point[axis]){
-		next_branch=node.left;
-		opposite_branch=node.right;
-	}else{
-		next_branch=node.right;
-		opposite_branch=node.left;
-	}
-
-
-	range_query_circle(next_branch,center,radio,queue,depth+1);
-	if(radio>=Math.abs(center[axis]-node.point[axis])){
-		range_query_circle(opposite_branch,center,radio,queue,depth+1);
-	}
-	return queue;
+  range_query_circle(next_branch, center, radio, queue, depth + 1);
+  if (radio >= Math.abs(center[axis] - node.point[axis])) {
+    range_query_circle(opposite_branch, center, radio, queue, depth + 1);
+  }
+  return queue;
 }
 
-
-
-const data = [
-=======
 const data2 = [
->>>>>>> 8678c5f98f9748c55f43d25e372b4a3c71790286
   [0, 0],
   [1, 1],
   [2, 2],
