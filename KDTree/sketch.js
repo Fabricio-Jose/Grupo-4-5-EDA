@@ -1,19 +1,20 @@
 function dibujar_circulo(point, radio) {
     fill(100, 100, 255, 0);
-    circle(point[0], height - point[1], radio * 2); 
+    circle(point[0], height - point[1], radio * 2);
     textSize(8);
-    fill(0,255,255)
     circle(x, height - y, 2);
-    a = "Punto " + point[0] + ',' + point[1], point[0] - 25, height - point[1];
-    b = "Radio " + radio, point[0] - 15, height - point[1] + 10;
-    document.getElementById('datos').innerHTML = a + ' ' + b;
+    a = "punto: " + point[0] + ',' + point[1];
+    b = "radio: " + radio;
+    document.getElementById('circle').innerHTML = 'Circulo: ' + a + ' ' + b;
 }
 
-function dibujar_rectangulo(point,range) {
-    fill(255, 255, 0, 40);
-    rect(point[0], point[0], range[0], range[1]);
-    textSize(8);
-    text(point[0] + ',' + point[1], point[0] - 8, height - point[1]);
+function dibujar_rectangulo(point, range) {
+    fill(255, 0, 255, 40);
+    rect(point[0] - range[0]/2, height - point[1] - range[1]/2, range[0], range[1]);
+    textSize(6);
+    text(point[0] + ',' + point[1], point[0] + 5, height - point[1] + 5);
+    c = "punto: " + point[0] + ',' + point[1];
+    document.getElementById('rect').innerHTML = 'Rect: ' + c + ', ancho:' + range[0] + ', alto:' + range[1];
 }
 
 function dibujar_puntos(lista, r, g, b) {
@@ -56,14 +57,15 @@ function setup() {
 
     var point = [80, 120]; //punto del circulo y el rectangulo
     var radio = 50;
-    var range = [70, 50];
     dibujar_circulo(point, radio);
     let queue = [];
     range_query_circle(root, point, radio, queue);
     dibujar_puntos(queue, 255, 255, 0);
     console.log(queue);
+
     var point_rect = [50, 100];
     var range = [100, 70];
+    dibujar_rectangulo(point, range);
     let queue_rect = [];
     range_query_rectangle(root, point_rect, range, queue_rect);
     dibujar_puntos(queue_rect, 255, 255, 0);

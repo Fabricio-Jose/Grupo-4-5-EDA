@@ -89,6 +89,40 @@ function naive_closest_point(node, point, depth = 0, best = null) {
 	return node.point;
 }
 
+function closer_point(point, p1, p2){
+	if (p2 == null) {
+		return p1;
+	}
+	if (p1 == null) {
+		return p2;
+	}
+	var distancia1 = distanceSquared(p1, point);
+	var distancia2 = distanceSquared(p2, point);
+	return (distancia1 < distancia2) ? p1 : p2;
+}
+
+function closest_point(node, point, depth = 0) {
+	if (node == null) {
+		return null;
+	}
+	var axis = depth % k;
+	var next_branch = null;
+	var oppsite_branch = null;
+	if (point[axis] < node.point[axis]) {
+		next_branch = node.left;
+		oppsite_branch = node.right;
+	}
+	else {
+		next_branch = node.right;
+		oppsite_branch = node.left;
+	}
+	best = closer_point(point, closest_point(next_branch, point, depth + 1), node.point);
+	if (distanceSquared(point, best) > Math.abs(point[axis] - node.point[axis])) {
+		best = closer_point(point, closest_point(oppsite_branch, point, depth + 1), node.point);
+	}
+	return best;
+}
+
 
 function range_query_circle(node, center, radio, queue, depth = 0) {
 	if (node == null) {
@@ -104,43 +138,45 @@ function range_query_circle(node, center, radio, queue, depth = 0) {
 		next_branch=node.right;
 		opposite_branch=node.left;
 	}
-	best = closer_point(center,node, range_query_circle(next_branch, center, radio, queue, depth + 1));
+	best = closer_point(center, node, range_query_circle(next_branch, center, radio, queue, depth + 1));
 	if ((Math.abs(center[axis] - node.point[axis]) <= radio) && 
 		distanceSquared(center, best.point) > Math.abs(center[axis] - node.point[axis])) {
-		best=closer_point(center,best,range_query_circle(opposite_branch,center,radio,queue,depth+1));
+		best = closer_point(center, best, range_query_circle(opposite_branch, center, radio, queue, depth + 1));
 	}
 	if (distanceSquared(center, node.point) <= radio)
 		queue.push(node.point);
 }
 
-
-function contains(range_point, range, point) {
-	if (point[0] > range[0] || point[1] > range[1] || point[0] < range[0] || point[1] < range[1])
+function contains(point_rect, range, point) {
+	if (point[0] > point_rect[0] + range[0]/2 || 
+		point[1] > point_rect[1] + range[1]/2 || 
+		point[0] < point_rect[0] - range[0]/2 || 
+		point[1] < point_rect[1] - range[1]/2)
 		return false;
 	else
 		return true;
 }
 
-function range_query_rectangle(node, punto, range, queue, depth = 0){
+function range_query_rectangle(node, point, range, queue, depth = 0){
 	if (node == null){
 		return null;
 	}
 	var axis = node.axis ;
 	var next_branch = null;
 	var opposite_branch = null;
-	if (punto[axis] < node.point[axis]) {
+	if (point[axis] < node.point[axis]) {
 		next_branch = node.left;
 		opposite_branch = node.right;
 	} else {
 		next_branch = node.right;
 		opposite_branch = node.left;
 	}
-	best = closer_point(punto, node, range_query_circle(next_branch, punto, range, queue, depth + 1));
-	if((Math.abs((punto[axis]) - node.point[axis]) <= range[axis]) || 
-		distanceSquared(punto, best.point) > Math.abs(punto[axis] - node.point[axis])) {
-		best = closer_point(punto, best, range_query_circle(opposite_branch, punto, range, queue, depth + 1));
+	best = closer_point(point, node, range_query_circle(next_branch, point, range, queue, depth + 1));
+	if((Math.abs((point[axis]) - node.point[axis]) <= range[axis]) || 
+		distanceSquared(point, best.point) > Math.abs(point[axis] - node.point[axis])) {
+		best = closer_point(point, best, range_query_circle(opposite_branch, point, range, queue, depth + 1));
 	}
-	if(contains(punto, range, node.point))
+	if(contains(point, range, node.point))
 		queue.push(node.point);
 }
 
@@ -214,40 +250,6 @@ function knn(node, query_point, depth = 0){
 
 
 
-
-function closer_point(point, p1, p2){
-	if (p2 == null) {
-		return p1;
-	}
-	if (p1 == null) {
-		return p2;
-	}
-	var distancia1 = distanceSquared(p1, point);
-	var distancia2 = distanceSquared(p2, point);
-	return (distancia1 < distancia2) ? p1 : p2;
-}
-
-function closest_point(node, point, depth = 0) {
-	if (node == null) {
-		return null;
-	}
-	var axis = depth % k;
-	var next_branch = null;
-	var oppsite_branch = null;
-	if (point[axis] < node.point[axis]) {
-		next_branch = node.left;
-		oppsite_branch = node.right;
-	}
-	else {
-		next_branch = node.right;
-		oppsite_branch = node.left;
-	}
-	best = closer_point(point, closest_point(next_branch, point, depth + 1), node.point);
-	if (distanceSquared(point, best) > Math.abs(point[axis] - node.point[axis])) {
-		best = closer_point(point, closest_point(oppsite_branch, point, depth + 1), node.point);
-	}
-	return best;
-}
 
 /*function closest_point(node, point, depth = 0) {
     if(node == null) {
