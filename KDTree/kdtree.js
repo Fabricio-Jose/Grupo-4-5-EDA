@@ -139,6 +139,8 @@ function range_query_circle(node, center, radio, queue, depth = 0) {
   return queue;
 }
 
+function range_query_rec(node, center, width, height, queue, depth = 0) {}
+
 const data2 = [
   [0, 0],
   [1, 1],
