@@ -68,31 +68,31 @@ const naive_closest_point = (node, point, depth = 0, best = null) => {
     return naive_closest_point(node.right, point, depth + 1, best);
 };
 
-const closest_point = (node, point, depth = 0, best = null) => {
-  if (!node) return best;
-  if (!best) best = [Infinity, null];
-  let dist_node = $distance(node.point, point);
+// const closest_point = (node, point, depth = 0, best = null) => {
+//   if (!node) return best;
+//   if (!best) best = [Infinity, null];
+//   let dist_node = $distance(node.point, point);
 
-  if (best[0] > dist_node) best = [dist_node, node.point];
-  let axis = depth % k;
-  if (node.point[axis] > point[axis]) {
-    let closest_pair = closest_point(node.left, point, depth + 1, best);
-    console.log({ Lpair: closest_pair });
-    console.log({ Ldist: dist_node });
-    return closest_pair[0] > dist_node
-      ? closest_point(node.right, point, depth + 1, best)
-      : closest_pair;
-  } else if (node.point[axis] < point[axis]) {
-    let closest_pair = closest_point(node.right, point, depth + 1, best);
-    console.log({ Rpair: closest_pair });
-    console.log({ Rdist: dist_node });
-    return closest_pair[0] > dist_node
-      ? closest_point(node.left, point, depth + 1, best)
-      : closest_pair;
-  } else if (JSON.stringify(node.point) === JSON.stringify(point)) {
-    return [point, 0];
-  }
-};
+//   if (best[0] > dist_node) best = [dist_node, node.point];
+//   let axis = depth % k;
+//   if (node.point[axis] > point[axis]) {
+//     let closest_pair = closest_point(node.left, point, depth + 1, best);
+//     console.log({ Lpair: closest_pair });
+//     console.log({ Ldist: dist_node });
+//     return closest_pair[0] > dist_node
+//       ? closest_point(node.right, point, depth + 1, best)
+//       : closest_pair;
+//   } else if (node.point[axis] < point[axis]) {
+//     let closest_pair = closest_point(node.right, point, depth + 1, best);
+//     console.log({ Rpair: closest_pair });
+//     console.log({ Rdist: dist_node });
+//     return closest_pair[0] > dist_node
+//       ? closest_point(node.left, point, depth + 1, best)
+//       : closest_pair;
+//   } else if (JSON.stringify(node.point) === JSON.stringify(point)) {
+//     return [point, 0];
+//   }
+// };
 
 const $distance = (a, p) => {
   //euclidean distance
