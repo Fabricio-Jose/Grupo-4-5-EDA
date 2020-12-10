@@ -356,16 +356,19 @@ def main():
         print(a)
         plt.scatter(a.x,a.y,color='black')
         tree.insert(a)
-	
+
     tree.showRtree(ax)
 
     r=Rect(20,30,70,80)
     addline(ax,r,'red')
     v=tree.range_query(r)
+    for l in v:
+        print("x: "+str(l.x)+" y: "+str(l.y))
     for p in v: 
         plt.scatter(p.x,p.y,color='red')
 
-
+    #print("puntos en query: ")
+    #print(range_query(r))
     ax.set_xlim(-1,105)
     ax.set_ylim(-1,105)
     plt.show()
